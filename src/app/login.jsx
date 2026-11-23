@@ -1,6 +1,6 @@
-import { router } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, Text } from "react-native";
+import { useAuth } from "../context/AuthContext";
 
 import * as z from "zod";
 import AppButton from "../components/AppButton";
@@ -8,13 +8,14 @@ import AppScreen from "../components/AppScreen";
 import AppTextInput from "../components/AppTextInput";
 
 export default function LoginScreen() {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [error, setError] = useState("");
 
-  const mockEmail = "student@example.com";
-  const mockPassword = "password2026";
+  const mockEmail = "hi@gmail.com";
+  const mockPassword = "john1234";
 
   //Form Validation using Zod
   const loginSchema = z.object({
@@ -41,7 +42,7 @@ export default function LoginScreen() {
       return;
     }
 
-    router.replace("/tasks");
+    login();
   }
 
   return (
