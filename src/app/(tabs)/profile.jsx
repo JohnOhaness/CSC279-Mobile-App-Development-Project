@@ -1,15 +1,5 @@
-import { Text } from "react-native";
-import AppScreen from "../../components/AppScreen";
-import { colors } from "../../theme/colors";
+import ProfileOverview from "../../components/ProfileOverview";
 
-export default function News() {
-  return (
-    <AppScreen centered>
-      <Text
-        style={{ color: colors.primary, fontSize: 20, textAlign: "center" }}
-      >
-        Profile
-      </Text>
-    </AppScreen>
-  );
+export default function Profile() {
+  return <ProfileOverview />;
 }

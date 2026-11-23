@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import {
   Alert,
   FlatList,
+  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -19,6 +20,15 @@ const FILTERS = ["all", ...STATUSES];
 function GameCard({ game, onPress }) {
   return (
     <Pressable style={styles.card} onPress={onPress}>
+      {game.coverUrl ? (
+        <Image source={{ uri: game.coverUrl }} style={styles.cover} />
+      ) : (
+        <View style={[styles.cover, styles.coverPlaceholder]}>
+          <Text style={styles.coverLetter}>
+            {game.title ? game.title[0].toUpperCase() : "?"}
+          </Text>
+        </View>
+      )}
       <View style={styles.cardInfo}>
         <Text style={styles.cardTitle} numberOfLines={1}>
           {game.title}
@@ -73,6 +83,8 @@ export default function Library() {
         title: data.title,
         platform: data.platform,
         notes: data.notes,
+        coverUrl: data.coverUrl,
+        steamAppId: data.steamAppId,
       });
       // setStatus also handles the completedAt date
       if (data.status !== editing.status) setStatus(editing.id, data.status);
@@ -131,7 +143,7 @@ export default function Library() {
         ListEmptyComponent={
           <Text style={styles.empty}>
             {games.length === 0
-              ? "No games yet. Add a game to get started."
+              ? "No games yet. Tap + Add Game to get started."
               : "No games match your search or filter."}
           </Text>
         }
@@ -167,10 +179,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 12,
-    padding: 14,
+    padding: 10,
     marginBottom: 10,
   },
-  cardInfo: { flex: 1, marginRight: 12 },
+  cover: { width: 48, height: 48, borderRadius: 8 },
+  coverPlaceholder: {
+    backgroundColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  coverLetter: { fontSize: 20, fontWeight: "700", color: colors.primary },
+  cardInfo: { flex: 1, marginHorizontal: 12 },
   cardTitle: { fontSize: 16, fontWeight: "600", color: colors.text },
   cardSub: { fontSize: 13, color: colors.textMuted, marginTop: 2 },
   badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 },

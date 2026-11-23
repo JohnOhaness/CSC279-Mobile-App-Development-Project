@@ -42,7 +42,7 @@ export default function LoginScreen() {
       return;
     }
 
-    login();
+    login(email);
   }
 
   return (
