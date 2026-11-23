@@ -46,7 +46,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <AppScreen>
+    <AppScreen safeTop>
       <Text style={styles.heading}>Welcome back!</Text>
 
       <Text style={styles.label}>Email</Text>

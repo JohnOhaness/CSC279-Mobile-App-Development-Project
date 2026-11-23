@@ -1,9 +1,11 @@
 import { StyleSheet, TextInput } from "react-native";
+import { colors } from "../theme/colors";
 
 export default function AppTextInput(props) {
   return (
     <TextInput
       placeholder={props.placeholder}
+      placeholderTextColor={colors.textMuted}
       keyboardType={props.keyboardType}
       secureTextEntry={props.secureTextEntry}
       onChangeText={props.onChangeText}
@@ -19,13 +21,13 @@ export default function AppTextInput(props) {
 
 const styles = StyleSheet.create({
   input: {
-    backgroundColor: "white",
+    backgroundColor: colors.surface,
     padding: 14,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#A9BCAF",
+    borderColor: colors.border,
     marginVertical: 8,
     fontSize: 17,
-    color: "#203B35",
+    color: colors.text,
   },
 });

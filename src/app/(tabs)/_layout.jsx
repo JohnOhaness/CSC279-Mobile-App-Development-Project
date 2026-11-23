@@ -1,13 +1,14 @@
 import { Tabs } from "expo-router";
 import { Image, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { colors } from "../../theme/colors";
 
 // Put your icon files here and adjust the names/extensions to match
 const icons = {
   home: require("../../../assets/icons/home.png"),
-  news: require("../../../assets/icons/home.png"),
-  library: require("../../../assets/icons/home.png"),
-  profile: require("../../../assets/icons/home.png"),
+  news: require("../../../assets/icons/news.png"),
+  library: require("../../../assets/icons/library.png"),
+  profile: require("../../../assets/icons/profile.png"),
 };
 
 function TabIcon({ source, color }) {
@@ -28,14 +29,15 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#007AFF",
-        tabBarInactiveTintColor: "#8E8E93",
-        headerStyle: { backgroundColor: "#fff" },
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
+        headerStyle: { backgroundColor: colors.background },
+        headerTintColor: colors.primary,
         tabBarButton: (props) => (
           <Pressable {...props} android_ripple={{ color: "transparent" }} />
         ),
         tabBarStyle: {
-          backgroundColor: "#fff",
+          backgroundColor: colors.background,
           height: 49 + insets.bottom + EXTRA_HEIGHT,
           paddingBottom: insets.bottom + (ICONS_UP - EXTRA_HEIGHT / 2) * 2,
         },

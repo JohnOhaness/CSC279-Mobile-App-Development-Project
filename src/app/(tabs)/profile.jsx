@@ -1,9 +1,15 @@
-import { Text, View } from "react-native";
+import { Text } from "react-native";
+import AppScreen from "../../components/AppScreen";
+import { colors } from "../../theme/colors";
 
-export default function Screen() {
+export default function News() {
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>Profile</Text>
-    </View>
+    <AppScreen centered>
+      <Text
+        style={{ color: colors.primary, fontSize: 20, textAlign: "center" }}
+      >
+        Profile
+      </Text>
+    </AppScreen>
   );
 }

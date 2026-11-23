@@ -4,20 +4,14 @@ import {
   ActivityIndicator,
   Image,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import AppButton from "../../components/AppButton";
+import AppScreen from "../../components/AppScreen";
 import { useLibrary } from "../../library/LibraryContext";
-
-const STATUS_COLORS = {
-  backlog: "#8E8E93",
-  playing: "#007AFF",
-  completed: "#34C759",
-  dropped: "#FF3B30",
-  wishlist: "#AF52DE",
-};
+import { colors } from "../../theme/colors";
 
 function StatCard({ label, value, color }) {
   return (
@@ -49,7 +43,7 @@ function GameRow({ game, onPress }) {
         </Text>
       </View>
       <View
-        style={[styles.badge, { backgroundColor: STATUS_COLORS[game.status] }]}
+        style={[styles.badge, { backgroundColor: colors.status[game.status] }]}
       >
         <Text style={styles.badgeText}>{game.status}</Text>
       </View>
@@ -57,16 +51,14 @@ function GameRow({ game, onPress }) {
   );
 }
 
-function Section({ title, children, actionLabel, onAction }) {
+function Section({ title, children, onAction }) {
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>{title}</Text>
-        {actionLabel ? (
-          <Pressable onPress={onAction}>
-            <Text style={styles.sectionAction}>{actionLabel}</Text>
-          </Pressable>
-        ) : null}
+        <Pressable onPress={onAction}>
+          <Text style={styles.sectionAction}>See all</Text>
+        </Pressable>
       </View>
       {children}
     </View>
@@ -103,46 +95,44 @@ export default function Home() {
 
   if (!loaded) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator />
-      </View>
+      <AppScreen centered>
+        <ActivityIndicator color={colors.primary} />
+      </AppScreen>
     );
   }
 
   if (games.length === 0) {
     return (
-      <View style={styles.center}>
+      <AppScreen centered>
         <Text style={styles.emptyTitle}>Your library is empty</Text>
         <Text style={styles.emptyText}>
           Add your first game to start tracking what you play.
         </Text>
-        <Pressable style={styles.primaryButton} onPress={openLibrary}>
-          <Text style={styles.primaryButtonText}>Go to Library</Text>
-        </Pressable>
-      </View>
+        <AppButton text="Go to Library" onPress={openLibrary} />
+      </AppScreen>
     );
   }
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+    <AppScreen>
       <Text style={styles.heading}>Your Games</Text>
 
       <View style={styles.statsRow}>
-        <StatCard label="Total" value={stats.total} color="#111" />
+        <StatCard label="Total" value={stats.total} color={colors.text} />
         <StatCard
           label="Playing"
           value={stats.playing}
-          color={STATUS_COLORS.playing}
+          color={colors.status.playing}
         />
         <StatCard
           label="Backlog"
           value={stats.backlog}
-          color={STATUS_COLORS.backlog}
+          color={colors.status.backlog}
         />
         <StatCard
           label="Done"
           value={stats.completed}
-          color={STATUS_COLORS.completed}
+          color={colors.status.completed}
         />
       </View>
 
@@ -156,11 +146,7 @@ export default function Home() {
         </View>
       </View>
 
-      <Section
-        title="Currently Playing"
-        actionLabel="See all"
-        onAction={openLibrary}
-      >
+      <Section title="Currently Playing" onAction={openLibrary}>
         {playing.length > 0 ? (
           playing.map((game) => (
             <GameRow key={game.id} game={game} onPress={openLibrary} />
@@ -172,44 +158,46 @@ export default function Home() {
         )}
       </Section>
 
-      <Section
-        title="Recently Added"
-        actionLabel="See all"
-        onAction={openLibrary}
-      >
+      <Section title="Recently Added" onAction={openLibrary}>
         {recent.map((game) => (
           <GameRow key={game.id} game={game} onPress={openLibrary} />
         ))}
       </Section>
-    </ScrollView>
+
+      <AppButton
+        text="Open Library"
+        onPress={openLibrary}
+        style={styles.libraryButton}
+      />
+    </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#F2F2F7" },
-  content: { padding: 16, paddingBottom: 32 },
-  center: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
-    backgroundColor: "#F2F2F7",
+  heading: {
+    fontSize: 28,
+    fontWeight: "700",
+    marginBottom: 16,
+    color: colors.primary,
   },
-  heading: { fontSize: 28, fontWeight: "700", marginBottom: 16, color: "#111" },
 
   statsRow: { flexDirection: "row", gap: 8, marginBottom: 12 },
   statCard: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
   },
   statValue: { fontSize: 22, fontWeight: "700" },
-  statLabel: { fontSize: 12, color: "#8E8E93", marginTop: 2 },
+  statLabel: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
 
   progressCard: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: 12,
     padding: 14,
     marginBottom: 8,
@@ -219,15 +207,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 8,
   },
-  progressLabel: { fontSize: 14, color: "#444" },
-  progressPercent: { fontSize: 14, fontWeight: "700", color: "#111" },
+  progressLabel: { fontSize: 14, color: colors.textMuted },
+  progressPercent: { fontSize: 14, fontWeight: "700", color: colors.primary },
   progressTrack: {
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#E5E5EA",
+    backgroundColor: colors.border,
     overflow: "hidden",
   },
-  progressFill: { height: 8, backgroundColor: "#34C759" },
+  progressFill: { height: 8, backgroundColor: colors.primary },
 
   section: { marginTop: 20 },
   sectionHeader: {
@@ -236,53 +224,45 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 8,
   },
-  sectionTitle: { fontSize: 18, fontWeight: "600", color: "#111" },
-  sectionAction: { fontSize: 14, color: "#007AFF" },
-  mutedText: { color: "#8E8E93", fontSize: 14 },
+  sectionTitle: { fontSize: 18, fontWeight: "600", color: colors.text },
+  sectionAction: { fontSize: 14, color: colors.primaryLight },
+  mutedText: { color: colors.textMuted, fontSize: 14 },
 
   row: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
     borderRadius: 12,
     padding: 10,
     marginBottom: 8,
   },
   cover: { width: 48, height: 48, borderRadius: 8 },
   coverPlaceholder: {
-    backgroundColor: "#E5E5EA",
+    backgroundColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
-  coverLetter: { fontSize: 20, fontWeight: "700", color: "#8E8E93" },
+  coverLetter: { fontSize: 20, fontWeight: "700", color: colors.primary },
   rowInfo: { flex: 1, marginHorizontal: 12 },
-  rowTitle: { fontSize: 16, fontWeight: "600", color: "#111" },
-  rowSub: { fontSize: 13, color: "#8E8E93", marginTop: 2 },
+  rowTitle: { fontSize: 16, fontWeight: "600", color: colors.text },
+  rowSub: { fontSize: 13, color: colors.textMuted, marginTop: 2 },
   badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 },
   badgeText: {
-    color: "#fff",
+    color: colors.onPrimary,
     fontSize: 11,
     fontWeight: "600",
     textTransform: "capitalize",
   },
 
+  libraryButton: { marginTop: 20 },
+
   emptyTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#111",
+    color: colors.primary,
     marginBottom: 6,
   },
-  emptyText: {
-    fontSize: 14,
-    color: "#8E8E93",
-    textAlign: "center",
-    marginBottom: 16,
-  },
-  primaryButton: {
-    backgroundColor: "#007AFF",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 10,
-  },
-  primaryButtonText: { color: "#fff", fontWeight: "600", fontSize: 15 },
+  emptyText: { fontSize: 14, color: colors.textMuted, marginBottom: 16 },
 });

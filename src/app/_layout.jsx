@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import { LibraryProvider } from "../library/LibraryContext";
 
@@ -24,6 +25,8 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <LibraryProvider>
+        {/* "dark" = black clock, battery and notification icons */}
+        <StatusBar style="dark" />
         <RootNavigator />
       </LibraryProvider>
     </AuthProvider>
