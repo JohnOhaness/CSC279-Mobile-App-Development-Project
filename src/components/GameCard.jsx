@@ -18,7 +18,12 @@ export default function GameCard({ game, onPress }) {
           {game.title}
         </Text>
         <Text style={styles.cardSub} numberOfLines={1}>
-          {[game.platform, game.hoursPlayed != null && (game.hoursPlayed + " h played")].filter(Boolean).join(" · ") || "No platform"}
+          {[
+            game.platform,
+            game.hoursPlayed != null && game.hoursPlayed + " h played",
+          ]
+            .filter(Boolean)
+            .join(" · ") || "No platform"}
         </Text>
       </View>
       {game.allAchievements && (
