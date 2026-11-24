@@ -5,8 +5,8 @@ import {
   Platform,
   StyleSheet,
   Switch,
-  View,
   Text,
+  View,
 } from "react-native";
 import { useSettings } from "../context/SettingsContext";
 import { STATUSES } from "../library/LibraryContext";
@@ -28,9 +28,6 @@ const PLATFORMS = [
   "Other",
 ];
 
-// Add / edit form shown as a full-screen modal.
-// game = null  -> "Add Game" mode
-// game = {...} -> "Edit Game" mode (shows a Delete button)
 export default function GameFormModal({
   visible,
   game,
@@ -48,9 +45,8 @@ export default function GameFormModal({
   const [hours, setHours] = useState("");
   const [allAchievements, setAllAchievements] = useState(false);
   const [error, setError] = useState("");
-  const [browsing, setBrowsing] = useState(false); // true = showing the Steam list
+  const [browsing, setBrowsing] = useState(false);
 
-  // Reset the fields every time the modal opens
   useEffect(() => {
     if (!visible) return;
     setTitle(game ? game.title : "");
@@ -80,7 +76,11 @@ export default function GameFormModal({
     }
     const input = hours.trim().replace(",", ".");
     const hoursPlayed = input ? Number(input) : null;
-    if (input && (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(input) || !Number.isFinite(hoursPlayed))) {
+    if (
+      input &&
+      (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(input) ||
+        !Number.isFinite(hoursPlayed))
+    ) {
       setError("Enter zero or a positive number of hours, such as 2.5.");
       return;
     }
@@ -97,7 +97,11 @@ export default function GameFormModal({
   }
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={browsing ? () => setBrowsing(false) : onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      onRequestClose={browsing ? () => setBrowsing(false) : onClose}
+    >
       {browsing ? (
         <SteamBrowser
           initialTerm={title}
@@ -145,7 +149,9 @@ export default function GameFormModal({
 
             {status === "completed" && (
               <View style={styles.switchRow}>
-                <Text style={styles.switchLabel}>All achievements collected</Text>
+                <Text style={styles.switchLabel}>
+                  All achievements collected
+                </Text>
                 <Switch
                   accessibilityLabel="All achievements collected"
                   value={allAchievements}
