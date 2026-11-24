@@ -1,3 +1,4 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -9,7 +10,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { browseSteam } from "../library/Steam";
+import { browseSteam } from "../library/steam";
 import { colors } from "../theme/colors";
 import AppButton from "./AppButton";
 import AppTextInput from "./AppTextInput";
@@ -106,7 +107,7 @@ export default function SteamBrowser({ initialTerm = "", onPick, onBack }) {
               resizeMode="contain"
             />
           ) : (
-            <Text style={styles.clearPlaceholder}>✕</Text>
+            <Ionicons name="trash-outline" size={18} color={colors.onPrimary} />
           )}
         </Pressable>
       </View>
