@@ -1,22 +1,20 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext } from "react";
 
+import { authenticate, registerAccount } from "../library/accounts";
+import { useLocalValue } from "./useLocalValue";
+
+const restoreEmail = (saved) => typeof saved === "string" ? saved : "";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [email, setEmail] = useState("");
-
-  const login = (userEmail) => {
-    setEmail(userEmail || "");
-    setIsLoggedIn(true);
-  };
-  const logout = () => {
-    setIsLoggedIn(false);
-    setEmail("");
-  };
+  const [email, setEmail, loaded, error] = useLocalValue("sessionEmail", "", restoreEmail);
+  const login = async (email, password) => setEmail(await authenticate(email, password));
+  const register = async (email, password) => setEmail(await registerAccount(email, password));
+  const logout = () => setEmail("");
+  const isLoggedIn = Boolean(email);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, email, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, email, login, register, logout, loaded, error }}>
       {children}
     </AuthContext.Provider>
   );

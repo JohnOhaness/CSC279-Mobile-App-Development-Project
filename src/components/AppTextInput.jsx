@@ -4,6 +4,7 @@ import { colors } from "../theme/colors";
 export default function AppTextInput(props) {
   return (
     <TextInput
+      accessibilityLabel={props.accessibilityLabel}
       placeholder={props.placeholder}
       placeholderTextColor={colors.textMuted}
       keyboardType={props.keyboardType}

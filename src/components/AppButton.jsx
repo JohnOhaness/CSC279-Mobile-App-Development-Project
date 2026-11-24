@@ -3,7 +3,7 @@ import { colors } from "../theme/colors";
 
 export default function AppButton(props) {
   return (
-    <Pressable onPress={props.onPress} style={[styles.button, props.style]}>
+    <Pressable accessibilityRole="button" disabled={props.disabled} onPress={props.onPress} style={[styles.button, props.style]}>
       <Text style={styles.buttonText}>{props.text}</Text>
     </Pressable>
   );

@@ -3,7 +3,7 @@ import {
   useContext,
   useEffect,
   useReducer,
-  useRef,
+  useState,
 } from "react";
 import { loadLibrary, saveLibrary } from "./storage";
 
@@ -16,6 +16,15 @@ export const STATUSES = [
 ];
 
 const makeId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+function withProgress(game) {
+  const completed = game.status === "completed";
+  return {
+    ...game,
+    completedAt: completed ? (game.completedAt ?? Date.now()) : null,
+    allAchievements: completed && game.allAchievements === true,
+  };
+}
 
 function reducer(state, action) {
   switch (action.type) {
@@ -32,32 +41,19 @@ function reducer(state, action) {
         rating: null,
         notes: "",
         coverUrl: null,
+        hoursPlayed: null,
         addedAt: Date.now(),
         completedAt: null,
         ...action.game,
       };
-      return { ...state, games: [game, ...state.games] };
+      return { ...state, games: [withProgress(game), ...state.games] };
     }
 
     case "UPDATE_GAME":
       return {
         ...state,
         games: state.games.map((g) =>
-          g.id === action.id ? { ...g, ...action.changes } : g,
-        ),
-      };
-
-    case "SET_STATUS":
-      return {
-        ...state,
-        games: state.games.map((g) =>
-          g.id === action.id
-            ? {
-                ...g,
-                status: action.status,
-                completedAt: action.status === "completed" ? Date.now() : null,
-              }
-            : g,
+          g.id === action.id ? withProgress({ ...g, ...action.changes }) : g,
         ),
       };
 
@@ -90,35 +86,44 @@ function reducer(state, action) {
 
 const LibraryContext = createContext(null);
 
-export function LibraryProvider({ children }) {
-  const [state, dispatch] = useReducer(reducer, {
-    version: 1,
+export function LibraryProvider({ children, storageKey }) {
+  const [state, dispatch] = useReducer((previous, action) => {
+    const next = reducer(previous, action);
+    return action.type === "LOAD" ? next : { ...next, changed: true };
+  }, {
+    version: 2,
     games: [],
     categories: [],
     loaded: false,
   });
-  const skipNextSave = useRef(true);
+  const [error, setError] = useState("");
 
-  // Load once on mount
   useEffect(() => {
-    loadLibrary().then((library) => dispatch({ type: "LOAD", library }));
-  }, []);
+    let active = true;
+    loadLibrary(storageKey).then((library) => {
+      if (active) dispatch({ type: "LOAD", library });
+    }).catch(() => {
+      if (active) setError("Could not read your library. Reopen the app to retry.");
+    });
+    return () => { active = false; };
+  }, [storageKey]);
 
-  // Save whenever games/categories change (but not right after loading)
   useEffect(() => {
-    if (!state.loaded) return;
-    if (skipNextSave.current) {
-      skipNextSave.current = false;
-      return;
-    }
-    const { loaded, ...library } = state;
-    saveLibrary(library);
-  }, [state.games, state.categories]);
+    if (!state.changed) return;
+    let active = true;
+    const { version, games, categories } = state;
+    saveLibrary(storageKey, { version, games, categories }).then(() => {
+      if (active) setError("");
+    }).catch(() => {
+      if (active) setError("Could not save your library on this device.");
+    });
+    return () => { active = false; };
+  }, [state, storageKey]);
 
   const actions = {
     addGame: (game) => dispatch({ type: "ADD_GAME", game }),
     updateGame: (id, changes) => dispatch({ type: "UPDATE_GAME", id, changes }),
-    setStatus: (id, status) => dispatch({ type: "SET_STATUS", id, status }),
+    setStatus: (id, status) => dispatch({ type: "UPDATE_GAME", id, changes: { status } }),
     deleteGame: (id) => dispatch({ type: "DELETE_GAME", id }),
     addCategory: (name, color) =>
       dispatch({ type: "ADD_CATEGORY", name, color }),
@@ -126,7 +131,7 @@ export function LibraryProvider({ children }) {
   };
 
   return (
-    <LibraryContext.Provider value={{ ...state, ...actions }}>
+    <LibraryContext.Provider value={{ ...state, error, ...actions }}>
       {children}
     </LibraryContext.Provider>
   );

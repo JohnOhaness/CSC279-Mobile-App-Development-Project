@@ -2,12 +2,12 @@ import { useRouter } from "expo-router";
 import { useMemo } from "react";
 import {
   ActivityIndicator,
-  Image,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import GameCard from "../../components/GameCard";
 import AppButton from "../../components/AppButton";
 import AppScreen from "../../components/AppScreen";
 import { useLibrary } from "../../library/LibraryContext";
@@ -19,35 +19,6 @@ function StatCard({ label, value, color }) {
       <Text style={[styles.statValue, { color }]}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
     </View>
-  );
-}
-
-function GameRow({ game, onPress }) {
-  return (
-    <Pressable style={styles.row} onPress={onPress}>
-      {game.coverUrl ? (
-        <Image source={{ uri: game.coverUrl }} style={styles.cover} />
-      ) : (
-        <View style={[styles.cover, styles.coverPlaceholder]}>
-          <Text style={styles.coverLetter}>
-            {game.title ? game.title[0].toUpperCase() : "?"}
-          </Text>
-        </View>
-      )}
-      <View style={styles.rowInfo}>
-        <Text style={styles.rowTitle} numberOfLines={1}>
-          {game.title}
-        </Text>
-        <Text style={styles.rowSub} numberOfLines={1}>
-          {game.platform || "No platform"}
-        </Text>
-      </View>
-      <View
-        style={[styles.badge, { backgroundColor: colors.status[game.status] }]}
-      >
-        <Text style={styles.badgeText}>{game.status}</Text>
-      </View>
-    </Pressable>
   );
 }
 
@@ -149,7 +120,7 @@ export default function Home() {
       <Section title="Currently Playing" onAction={openLibrary}>
         {playing.length > 0 ? (
           playing.map((game) => (
-            <GameRow key={game.id} game={game} onPress={openLibrary} />
+            <GameCard key={game.id} game={game} onPress={openLibrary} />
           ))
         ) : (
           <Text style={styles.mutedText}>
@@ -160,7 +131,7 @@ export default function Home() {
 
       <Section title="Recently Added" onAction={openLibrary}>
         {recent.map((game) => (
-          <GameRow key={game.id} game={game} onPress={openLibrary} />
+          <GameCard key={game.id} game={game} onPress={openLibrary} />
         ))}
       </Section>
 
@@ -227,34 +198,6 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 18, fontWeight: "600", color: colors.text },
   sectionAction: { fontSize: 14, color: colors.primaryLight },
   mutedText: { color: colors.textMuted, fontSize: 14 },
-
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 8,
-  },
-  cover: { width: 48, height: 48, borderRadius: 8 },
-  coverPlaceholder: {
-    backgroundColor: colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  coverLetter: { fontSize: 20, fontWeight: "700", color: colors.primary },
-  rowInfo: { flex: 1, marginHorizontal: 12 },
-  rowTitle: { fontSize: 16, fontWeight: "600", color: colors.text },
-  rowSub: { fontSize: 13, color: colors.textMuted, marginTop: 2 },
-  badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10 },
-  badgeText: {
-    color: colors.onPrimary,
-    fontSize: 11,
-    fontWeight: "600",
-    textTransform: "capitalize",
-  },
 
   libraryButton: { marginTop: 20 },
 

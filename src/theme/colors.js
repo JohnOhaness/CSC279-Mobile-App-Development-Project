@@ -10,6 +10,9 @@ export const colors = {
   primaryLight: "#6B2D9B",
   onPrimary: "#FBF7EC", // text/icons placed on top of purple
 
+  achievementGold: "#FFDC61",
+  achievementBlue: "#163E82",
+
   // Text
   text: "#2A0845",
   textMuted: "#7A6A8A",

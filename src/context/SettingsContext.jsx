@@ -1,7 +1,5 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, useContext, useEffect, useState } from "react";
-
-const KEY = "appSettings";
+import { createContext, useContext } from "react";
+import { useLocalValue } from "./useLocalValue";
 
 export const DEFAULT_SETTINGS = {
   region: "us", // Steam store country code, used for prices in Deals
@@ -10,40 +8,20 @@ export const DEFAULT_SETTINGS = {
   defaultStatus: "backlog", // status the Add Game form starts with
 };
 
+const restoreSettings = (saved) => ({ ...DEFAULT_SETTINGS, ...saved });
+
 const SettingsContext = createContext(null);
 
-export function SettingsProvider({ children }) {
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
-  const [loaded, setLoaded] = useState(false);
-
-  // Load saved settings once on startup
-  useEffect(() => {
-    async function load() {
-      try {
-        const raw = await AsyncStorage.getItem(KEY);
-        if (raw) setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(raw) });
-      } catch (e) {
-        console.warn("Failed to load settings", e);
-      } finally {
-        setLoaded(true);
-      }
-    }
-    load();
-  }, []);
-
-  // Save whenever a setting changes
-  useEffect(() => {
-    if (!loaded) return;
-    AsyncStorage.setItem(KEY, JSON.stringify(settings)).catch((e) =>
-      console.warn("Failed to save settings", e),
-    );
-  }, [settings, loaded]);
+export function SettingsProvider({ children, storageKey }) {
+  const [settings, setSettings, loaded, error] = useLocalValue(
+    storageKey, DEFAULT_SETTINGS, restoreSettings,
+  );
 
   const updateSetting = (key, value) =>
     setSettings((prev) => ({ ...prev, [key]: value }));
 
   return (
-    <SettingsContext.Provider value={{ settings, loaded, updateSetting }}>
+    <SettingsContext.Provider value={{ settings, loaded, error, updateSetting }}>
       {children}
     </SettingsContext.Provider>
   );

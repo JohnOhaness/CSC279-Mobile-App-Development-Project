@@ -44,7 +44,7 @@ function ageText(timestamp) {
 }
 
 function Bar({ label, value, max, color }) {
-  const width = max > 0 ? Math.max(6, Math.round((value / max) * 100)) : 0;
+  const width = max > 0 && value > 0 ? Math.max(6, Math.round((value / max) * 100)) : 0;
   return (
     <View style={styles.barRow}>
       <Text style={styles.barLabel} numberOfLines={1}>
@@ -192,6 +192,7 @@ export default function ProfileOverview() {
         </View>
         <Pressable
           onPress={() => router.push("/settings")}
+          accessibilityRole="button"
           hitSlop={10}
           accessibilityLabel="Open settings"
           style={styles.settingsButton}

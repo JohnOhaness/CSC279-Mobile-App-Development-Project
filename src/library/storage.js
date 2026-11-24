@@ -1,27 +1,37 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const KEY = "gameLibrary";
-const VERSION = 1;
+let pendingWrite = Promise.resolve();
 
-const emptyLibrary = () => ({ version: VERSION, games: [], categories: [] });
-
-export async function loadLibrary() {
-  try {
-    const raw = await AsyncStorage.getItem(KEY);
-    if (!raw) return emptyLibrary();
-    const parsed = JSON.parse(raw);
-    // Future: migrate here when parsed.version < VERSION
-    return { ...emptyLibrary(), ...parsed };
-  } catch (e) {
-    console.warn("Failed to load library", e);
-    return emptyLibrary();
-  }
+export function saveLocalValue(key, value) {
+  const json = JSON.stringify(value);
+  const write = pendingWrite.then(() => AsyncStorage.setItem(key, json));
+  pendingWrite = write.catch(() => {});
+  return write;
 }
 
-export async function saveLibrary(library) {
-  try {
-    await AsyncStorage.setItem(KEY, JSON.stringify(library));
-  } catch (e) {
-    console.warn("Failed to save library", e);
-  }
+export async function loadLocalValue(key) {
+  await pendingWrite;
+  const raw = await AsyncStorage.getItem(key);
+  return raw === null ? null : JSON.parse(raw);
 }
+
+export async function loadLibrary(key) {
+  const library = await loadLocalValue(key);
+  if (library && (!Array.isArray(library.games) || !Array.isArray(library.categories))) {
+    throw new Error("Invalid saved library");
+  }
+  return {
+    version: 2,
+    games: (library?.games ?? []).map((game) => ({
+      notes: "",
+      platform: "",
+      categories: [],
+      ...game,
+      hoursPlayed: game.hoursPlayed ?? null,
+      allAchievements: game.status === "completed" && game.allAchievements === true,
+    })),
+    categories: library?.categories ?? [],
+  };
+}
+
+export const saveLibrary = (key, library) => saveLocalValue(key, library);

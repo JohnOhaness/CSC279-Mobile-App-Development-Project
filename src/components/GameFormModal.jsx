@@ -4,6 +4,8 @@ import {
   Modal,
   Platform,
   StyleSheet,
+  Switch,
+  View,
   Text,
 } from "react-native";
 import { useSettings } from "../context/SettingsContext";
@@ -43,6 +45,8 @@ export default function GameFormModal({
   const [status, setStatus] = useState("backlog");
   const [coverUrl, setCoverUrl] = useState(null);
   const [steamAppId, setSteamAppId] = useState(null);
+  const [hours, setHours] = useState("");
+  const [allAchievements, setAllAchievements] = useState(false);
   const [error, setError] = useState("");
   const [browsing, setBrowsing] = useState(false); // true = showing the Steam list
 
@@ -55,9 +59,11 @@ export default function GameFormModal({
     setStatus(game ? game.status : settings.defaultStatus);
     setCoverUrl(game ? game.coverUrl : null);
     setSteamAppId(game ? (game.steamAppId ?? null) : null);
+    setHours(game?.hoursPlayed == null ? "" : String(game.hoursPlayed));
+    setAllAchievements(game?.allAchievements === true);
     setError("");
     setBrowsing(false);
-  }, [visible, game]);
+  }, [visible, game, settings.defaultStatus]);
 
   function pickSteamGame(item) {
     setTitle(item.name);
@@ -72,7 +78,15 @@ export default function GameFormModal({
       setError("Please enter a title.");
       return;
     }
+    const input = hours.trim().replace(",", ".");
+    const hoursPlayed = input ? Number(input) : null;
+    if (input && (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(input) || !Number.isFinite(hoursPlayed))) {
+      setError("Enter zero or a positive number of hours, such as 2.5.");
+      return;
+    }
     onSave({
+      hoursPlayed,
+      allAchievements: status === "completed" && allAchievements,
       title: title.trim(),
       platform,
       notes: notes.trim(),
@@ -83,7 +97,7 @@ export default function GameFormModal({
   }
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" onRequestClose={browsing ? () => setBrowsing(false) : onClose}>
       {browsing ? (
         <SteamBrowser
           initialTerm={title}
@@ -129,6 +143,26 @@ export default function GameFormModal({
               wrap
             />
 
+            {status === "completed" && (
+              <View style={styles.switchRow}>
+                <Text style={styles.switchLabel}>All achievements collected</Text>
+                <Switch
+                  accessibilityLabel="All achievements collected"
+                  value={allAchievements}
+                  onValueChange={setAllAchievements}
+                />
+              </View>
+            )}
+
+            <Text style={styles.label}>Hours played</Text>
+            <AppTextInput
+              accessibilityLabel="Hours played"
+              value={hours}
+              onChangeText={setHours}
+              keyboardType="decimal-pad"
+              placeholder="Optional, e.g. 12.5"
+            />
+
             <Text style={styles.label}>Notes</Text>
             <AppTextInput
               value={notes}
@@ -163,6 +197,8 @@ export default function GameFormModal({
 }
 
 const styles = StyleSheet.create({
+  switchRow: { flexDirection: "row", alignItems: "center", marginTop: 12 },
+  switchLabel: { flex: 1, color: colors.text, fontSize: 15 },
   flex: { flex: 1 },
   heading: {
     fontSize: 24,
